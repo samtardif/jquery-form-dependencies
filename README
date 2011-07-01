@@ -1,0 +1,5 @@
+== jQuery form dependencies ==
+
+Manage dependencies between checkboxes.
+
+Theoretically works for other input types too.
