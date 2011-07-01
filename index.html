@@ -1,0 +1,28 @@
+<html>
+    <head>
+        <title>Form Dependencies</title>
+        <script type="text/javascript" src="jquery-1.6.1.js"></script>
+        <script type="text/javascript" src="jquery.form-dependencies.js"></script>
+    </head>
+
+    <body>
+        <input type="checkbox" name="checkbox" id="checkbox1" />
+        <input type="checkbox" name="checkbox" id="checkbox2" />
+        <input type="checkbox" name="checkbox" id="checkbox3" disabled="disabled" />
+        <input type="checkbox" name="checkbox" id="checkbox4" style="display: none" />
+
+        <script type="text/javascript">
+            $(function () {
+                $("#checkbox3").addDependency({
+                    elements: [$("#checkbox1"), $("#checkbox2")],
+                    tooltip: "You need checkbox1 or checkbox2."
+                });
+
+                $("#checkbox4").addDependency({
+                    elements: [$("#checkbox1")],
+                    changeHandler: 'hide'
+                });
+            });
+        </script>
+    </body>
+</html>
