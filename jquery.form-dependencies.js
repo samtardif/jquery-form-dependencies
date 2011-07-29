@@ -19,17 +19,16 @@
         },
 
         elementsAreTruthy : function (elements) {
-            var result = false;
+            var isTruthy = false;
             $.each(elements, function (index, selector) {
-                var isTruthy = (this.val() ? true : false);
+                isTruthy = (this.val() ? true : false);
                 isTruthy = isTruthy && this.attr("checked");
                 isTruthy = isTruthy && !this.attr("disabled");
                 if (isTruthy) {
-                    result = isTruthy;
                     return false;
                 }
             });
-            return result;
+            return isTruthy;
         },
 
         registerDependencies : function (options) {
@@ -39,14 +38,29 @@
                 (function (element, elements, changeHandler) {
                     $el.live('change', function () {
                         var enable = methods.elementsAreTruthy(elements);
-                        if (changeHandler in methods.changeHandlers) {
-                            methods.changeHandlers[changeHandler](element, enable);
+
+                        if (typeof changeHandler === 'function') {
+                            changeHandler(element, enable);
                         } else {
-                            methods.changeHandlers['disable'](element, enable);
+                            if (changeHandler in methods.changeHandlers) {
+                                methods.changeHandlers[changeHandler](element, enable);
+                            } else {
+                                methods.changeHandlers['disable'](element, enable);
+                            }
                         }
+
+                        methods.toggleTooltip(element, options.tooltip);
                     });
                 })($element, options.elements, options.changeHandler);
             });
+        },
+
+        toggleTooltip : function (element, text) {
+            if (element.attr("title") === text) {
+                element.removeAttr("title");
+            } else {
+                element.attr("title", text);
+            }
         }
     };
 
@@ -58,8 +72,8 @@
 
         methods.registerDependencies.call(this, options);
 
-        if (options.tooltip) {
-            this.attr("title", options.tooltip);
+        if ($(this).is(":disabled")) {
+            methods.toggleTooltip(this, options.tooltip);
         }
 
         return this;

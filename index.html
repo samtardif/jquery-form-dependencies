@@ -10,6 +10,7 @@
         <input type="checkbox" name="checkbox" id="checkbox2" />
         <input type="checkbox" name="checkbox" id="checkbox3" disabled="disabled" />
         <input type="checkbox" name="checkbox" id="checkbox4" style="display: none" />
+        <input type="checkbox" name="checkbox" id="checkbox5" />
 
         <script type="text/javascript">
             $(function () {
@@ -21,6 +22,19 @@
                 $("#checkbox4").addDependency({
                     elements: [$("#checkbox1")],
                     changeHandler: 'hide'
+                });
+
+                function customCallback(element, enable) {
+                    if (enable) {
+                        element.css("margin-left", "100px");
+                    } else {
+                        element.css("margin-left", "0");
+                    }
+                }
+
+                $("#checkbox5").addDependency({
+                    elements: [$("#checkbox1")],
+                    changeHandler: customCallback
                 });
             });
         </script>
