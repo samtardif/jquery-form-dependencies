@@ -3,13 +3,24 @@
         changeHandler: 'disable'
     },
 
+    eventTypes = {
+        'INPUT' : {
+            'checkbox' : 'change',
+            'text' : 'keyup',
+            undefined : 'keyup'
+        },
+        'SELECT' : {
+            undefined : 'change'
+        }
+    },
+
     methods = {
         changeHandlers : {
-            'hide': function (element, enable) {
+            hide: function (element, enable) {
                 element.toggle(enable);
             },
 
-            'disable': function (element, enable) {
+            disable: function (element, enable) {
                 if (enable) {
                     element.removeAttr("disabled");
                 } else {
@@ -18,40 +29,57 @@
             }
         },
 
+        truthyTests : {
+            baseTest : function (element) {
+                var isTruthy = (element.val() ? true : false);
+                isTruthy = isTruthy && !element.attr("disabled");
+                return isTruthy;
+            },
+
+            checkbox : function (element) {
+                return element.attr("checked");
+            }
+        },
+
         elementsAreTruthy : function (elements) {
-            var isTruthy = false;
+            var isTruthy = false, element_type;
             $.each(elements, function (index, selector) {
-                isTruthy = (this.val() ? true : false);
-                isTruthy = isTruthy && this.attr("checked");
-                isTruthy = isTruthy && !this.attr("disabled");
+                isTruthy = methods.truthyTests.baseTest(this);
+                element_type = this.attr('type');
+                if (methods.truthyTests[element_type]) {
+                    isTruthy = isTruthy && methods.truthyTests[element_type](this);
+                }
+
                 if (isTruthy) {
                     return false;
                 }
             });
+
             return isTruthy;
         },
 
         registerDependencies : function (options) {
             var $element = this;
 
-            $.each(options.elements, function (index, $el) {
-                (function (element, elements, changeHandler) {
-                    $el.live('change', function () {
-                        var enable = methods.elementsAreTruthy(elements);
+            $.each(options.elements, function (index, $dependencyElement) {
+                (function ($dependency, $dependent, dependencies, changeHandler) {
+                    var eventType = eventTypes[$dependency.get(0).tagName][$dependency.attr('type')];
+                    $dependency.live(eventType, function () {
+                        var enable = methods.elementsAreTruthy(dependencies);
 
                         if (typeof changeHandler === 'function') {
-                            changeHandler(element, enable);
+                            changeHandler($dependent, enable);
                         } else {
                             if (changeHandler in methods.changeHandlers) {
-                                methods.changeHandlers[changeHandler](element, enable);
+                                methods.changeHandlers[changeHandler]($dependent, enable);
                             } else {
-                                methods.changeHandlers['disable'](element, enable);
+                                methods.changeHandlers.disable($dependent, enable);
                             }
                         }
 
-                        methods.toggleTooltip(element, options.tooltip);
+                        methods.toggleTooltip($dependent, options.tooltip);
                     });
-                })($element, options.elements, options.changeHandler);
+                })($dependencyElement, $element, options.elements, options.changeHandler);
             });
         },
 
@@ -65,7 +93,7 @@
     };
 
     $.fn.addDependency = function (options) {
-        options = $.extend(defaultOptions, options);
+        options = $.extend({}, defaultOptions, options);
         if (!options.elements) {
             return this;
         }

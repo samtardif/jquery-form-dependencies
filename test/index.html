@@ -1,18 +1,21 @@
+<!DOCTYPE html>
 <html>
     <head>
         <title>Form Dependencies</title>
-        <script type="text/javascript" src="jquery-1.6.1.js"></script>
-        <script type="text/javascript" src="../jquery.form-dependencies.js"></script>
+        <script src="jquery-1.6.1.js"></script>
+        <script src="../jquery.form-dependencies.js"></script>
     </head>
 
     <body>
-        <input type="checkbox" name="checkbox" id="checkbox1" />
-        <input type="checkbox" name="checkbox" id="checkbox2" />
-        <input type="checkbox" name="checkbox" id="checkbox3" disabled="disabled" />
-        <input type="checkbox" name="checkbox" id="checkbox4" style="display: none" />
-        <input type="checkbox" name="checkbox" id="checkbox5" />
-
-        <script type="text/javascript">
+        <h3>Basic checkbox dependencies</h3>
+        <p>
+            <input type="checkbox" name="checkbox" id="checkbox1" />
+            <input type="checkbox" name="checkbox" id="checkbox2" />
+            <input type="checkbox" name="checkbox" id="checkbox3" disabled="disabled" />
+            <input type="checkbox" name="checkbox" id="checkbox4" style="display: none" />
+            <input type="checkbox" name="checkbox" id="checkbox5" />
+        </p>
+        <script>
             $(function () {
                 $("#checkbox3").addDependency({
                     elements: [$("#checkbox1"), $("#checkbox2")],
@@ -35,6 +38,41 @@
                 $("#checkbox5").addDependency({
                     elements: [$("#checkbox1")],
                     changeHandler: customCallback
+                });
+            });
+        </script>
+
+        <h3>Other inputs</h3>
+        <p>
+            <input id="textbox1" />
+            <select id="select1" disabled="disabled">
+                <option>One</option>
+                <option>Two</option>
+                <option>Three</option>
+            </select>
+        </p>
+
+        <script>
+            $(function () {
+                $("#select1").addDependency({
+                    elements: [$("#textbox1")]
+                });
+            });
+        </script>
+
+        <p>
+            <select id="select2">
+                <option></option>
+                <option>One</option>
+                <option>Two</option>
+                <option>Three</option>
+            </select>
+            <input id="textbox2" disabled="disabled"/>
+        </p>
+        <script>
+            $(function () {
+                $("#textbox2").addDependency({
+                    elements: [$("#select2")]
                 });
             });
         </script>
